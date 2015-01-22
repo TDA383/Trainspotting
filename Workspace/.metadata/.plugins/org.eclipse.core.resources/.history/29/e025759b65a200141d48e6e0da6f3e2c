@@ -1,0 +1,23 @@
+import java.util.concurrent.*;
+import TSim.*;
+
+public class TrainSemaphore extends Semaphore {
+
+	private final Train train;
+
+	public TrainSemaphore(int permits, Train train) {
+		super(permits);
+		this.tsi = tsi;
+	}
+	
+	@Override
+	public void acquire() {
+		train.changeSpeed(0);
+		super.acquire();
+	}
+	
+	@Override
+	public void release() {
+		
+	}
+}

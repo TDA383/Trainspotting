@@ -1,0 +1,19 @@
+import java.util.concurrent.*;
+
+import TSim.*;
+
+public class TrainSemaphore extends Semaphore {
+
+	public TrainSemaphore(int permits) {
+		super(permits);
+	}
+	
+	public void acquire(Train t) throws InterruptedException {
+		super.acquire();
+	}
+	
+	public void release(int speed) {
+		super.release();
+		train.changeSpeed(speed);
+	}
+}

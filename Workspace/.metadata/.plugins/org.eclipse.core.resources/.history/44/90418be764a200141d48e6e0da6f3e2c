@@ -1,0 +1,16 @@
+public class TrainSemaphore extends Semaphore {
+
+	public TrainSemaphore(int permits) {
+		super(permits);
+	}
+	
+	@Override
+	public void acquire() {
+		
+	}
+	
+	@Override
+	public void release() {
+		
+	}
+}

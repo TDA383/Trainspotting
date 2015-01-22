@@ -1,4 +1,3 @@
-import java.util.concurrent.*;
 import TSim.*;
 
 public class Train extends Thread {
@@ -7,7 +6,7 @@ public class Train extends Thread {
 	private int speed;
 	private TSimInterface tsi;
 	
-	static Semaphore s = new Semaphore(1);
+	static TrainSemaphore s = new TrainSemaphore(1);
 	
 	public static final Position stn1up  = new Position(12,3);
 	public static final Position stn1dwn = new Position(12,5);
@@ -23,7 +22,6 @@ public class Train extends Thread {
 		tsi = TSimInterface.getInstance();
 		this.id = id;
 		this.speed = speed;
-		run();
 	}
 	
 	public void run() {
@@ -32,15 +30,10 @@ public class Train extends Thread {
 		} catch (CommandException e) {
 			e.printStackTrace();
 		}
-		
-		while (true) {
-			try {
-				SensorEvent event = tsi.getSensor(id);
-			} catch (CommandException | InterruptedException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
+	}
+	
+	public int getSpeed() {
+		return speed;
 	}
 	
 	public void changeSpeed(int v) {

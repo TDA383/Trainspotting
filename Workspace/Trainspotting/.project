@@ -26,6 +26,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Train.java</locationURI>
 		</link>
 		<link>
+			<name>src/TrainSemaphore.java</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/TrainSemaphore.java</locationURI>
+		</link>
+		<link>
 			<name>src/TSim/AddingArrayList.java</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/TSim/AddingArrayList.java</locationURI>
