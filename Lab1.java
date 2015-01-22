@@ -24,7 +24,7 @@ public class Lab1 {
 			break;
 		}
 		
-		Thread t1 = new Thread(new Train(1,t1speed));
-		Thread t2 = new Thread(new Train(2,t2speed));
+		new Train(1,t1speed);
+		new Train(2,t2speed);
 	}
 }

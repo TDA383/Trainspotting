@@ -1,12 +1,13 @@
-import javax.swing.text.Position;
-
+import java.util.concurrent.*;
 import TSim.*;
 
-public class Train implements Runnable {
+public class Train extends Thread {
 
 	private int id;
 	private int speed;
 	private TSimInterface tsi;
+	
+	static Semaphore s = new Semaphore(1);
 	
 	public static final Position stn1up  = new Position(12,3);
 	public static final Position stn1dwn = new Position(12,5);
@@ -35,11 +36,6 @@ public class Train implements Runnable {
 		while (true) {
 			try {
 				SensorEvent event = tsi.getSensor(id);
-				
-				for (int i = 0; i < 9; i++) {
-					
-				}
-				
 			} catch (CommandException | InterruptedException e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -53,10 +49,6 @@ public class Train implements Runnable {
 		} catch (CommandException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public Position[] getSensorsPos() {
-		
 	}
 }
 
