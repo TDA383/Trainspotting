@@ -80,6 +80,7 @@ public class Train extends Thread {
 	/** Starts the train with its specified speed.
 	 */
 	public void run() {
+		super.run();
 		try {
 			tsi.setSpeed(id, speed);
 		} catch (CommandException e) {
@@ -111,12 +112,12 @@ public class Train extends Thread {
 		return speed;
 	}
 	
-	/** Returns the critical section number.
+	/** Returns the critical section index.
 	 * 
 	 *  @param SensorEvent e, the sensor associated with the station.
-	 *  @return The critical section number if 'e' is in 'criticals', otherwise -1.
+	 *  @return The critical section index if 'e' is in 'criticals', otherwise -1.
 	 */
-	public int getSectionNumber(SensorEvent e) {
+	public int getSectionIndex(SensorEvent e) {
 		int i = -1;
 		if (sensorEqual(e, criticals[0]) || sensorEqual(e, criticals[1]) || 
 				sensorEqual(e, criticals[2]) || sensorEqual(e, criticals[3])) {
@@ -137,12 +138,12 @@ public class Train extends Thread {
 		return i;
 	}
 	
-	/** Returns the station number.
+	/** Returns the station index.
 	 * 
 	 *  @param SensorEvent e, the sensor associated with the station.
-	 *  @return The station number if 'e' is in 'stations', otherwise -1.
+	 *  @return The station index if 'e' is in 'stations', otherwise -1.
 	 */
-	public int getStationNumber(SensorEvent e) {
+	public int getStationIndex(SensorEvent e) {
 		// The number of stations is 4.
 		for (int i = 0; i < 4; i++) {
 			if (sensorEqual(e,stations[i])) return i;
@@ -245,19 +246,22 @@ public class Train extends Thread {
 		if (sensor != null) {
 			if (isCritical(sensor)) {
 				if (!isInCritical) {
-					System.err.println("Train " + id +" entering cs");
-					request(getSectionNumber(sensor));
+					System.err.println("Train " + id +" entering critical "
+							+ "section " + (getSectionIndex(sensor) + 1));
+					request(getSectionIndex(sensor));
 					isInCritical = true;
 				} else {
 					if (getSensor().getStatus() == INACTIVE) {
-						System.err.println("Train " + id +" exiting cs");
-						signal(getSectionNumber(sensor));
+						System.err.println("Train " + id +" exiting critical "
+								+ "section " + (getSectionIndex(sensor) + 1));
+						signal(getSectionIndex(sensor));
 						isInCritical = false;
 					}
 				}
 			} else if (isStation(sensor)) {
 				if (!isAtStation) {
-					System.err.println("Train " + id +" entering station");
+					System.err.println("Train " + id +" entering station "
+							 + (getStationIndex(sensor) + 1));
 					isAtStation = true;
 					brake();
 					try {
@@ -269,7 +273,8 @@ public class Train extends Thread {
 					run();
 				} else {
 					if (getSensor().getStatus() == INACTIVE) {
-						System.err.println("Train " + id +" exiting station");
+						System.err.println("Train " + id +" exiting station "
+								+ (getStationIndex(sensor) + 1));
 						isAtStation = false;
 					}
 				}
