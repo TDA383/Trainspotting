@@ -155,7 +155,7 @@ public class Train extends Thread {
 	 * 
 	 *  @return A SensorEvent.
 	 */
-	public SensorEvent getActiveSensor() {
+	public SensorEvent getSensor() {
 		SensorEvent s = null;
 		try {
 			s = tsi.getSensor(id);
@@ -241,19 +241,21 @@ public class Train extends Thread {
 	}
 	
 	public void checkEnvironment() {
-		SensorEvent active = getActiveSensor();
-		if (active != null) {
-			if (isCritical(active)) {
+		SensorEvent sensor = getSensor();
+		if (sensor != null) {
+			if (isCritical(sensor)) {
 				if (!isInCritical) {
 					System.err.println("Train " + id +" entering cs");
-					request(getSectionNumber(active));
+					request(getSectionNumber(sensor));
 					isInCritical = true;
 				} else {
-					System.err.println("Train " + id +" exiting cs");
-					signal(getSectionNumber(active));
-					isInCritical = false;
+					if (getSensor().getStatus() == INACTIVE) {
+						System.err.println("Train " + id +" exiting cs");
+						signal(getSectionNumber(sensor));
+						isInCritical = false;
+					}
 				}
-			} else if (isStation(active)) {
+			} else if (isStation(sensor)) {
 				if (!isAtStation) {
 					System.err.println("Train " + id +" entering station");
 					isAtStation = true;
@@ -266,8 +268,10 @@ public class Train extends Thread {
 					reverse();
 					run();
 				} else {
-					System.err.println("Train " + id +" exiting station");
-					isAtStation = false;
+					if (getSensor().getStatus() == INACTIVE) {
+						System.err.println("Train " + id +" exiting station");
+						isAtStation = false;
+					}
 				}
 			}
 		}
