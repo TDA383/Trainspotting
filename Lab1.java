@@ -25,9 +25,7 @@ public class Lab1 {
 		Train t1 = new Train(1,t1speed);
 		Train t2 = new Train(2,t2speed);
 		Train.simSpeed = simSpeed;
-		while(true) {
-			t1.checkEnvironment();
-			t2.checkEnvironment();
-		}
+		t1.start();
+		t2.start();
 	}
 }
