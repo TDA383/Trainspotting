@@ -1,4 +1,6 @@
+import java.awt.*;
 import java.util.concurrent.*;
+
 import TSim.*;
 import static TSim.SensorEvent.*;
 
@@ -20,12 +22,19 @@ public class Train extends Thread {
 	private Boolean isAtStation = true;
 	private Boolean isInCritical = false;
 	
-	private static final Semaphore[] sems = new Semaphore[]{
+	private static final Semaphore[] critSems = new Semaphore[]{
 		new Semaphore(1),
 		new Semaphore(1),
+		new Semaphore(1)
+//		new Semaphore(1),
+//		new Semaphore(1),
+	};
+	
+	private static final Semaphore[] statSems = new Semaphore[]{
 		new Semaphore(1),
-		new Semaphore(1),
-		new Semaphore(1),
+		new Semaphore(1)
+//		new Semaphore(1),
+//		new Semaphore(1),
 	};
 	
 	/** A list of station sensors.
@@ -50,19 +59,25 @@ public class Train extends Thread {
 				// Critical section 2					
 				new SensorEvent(id,14,7,INACTIVE),	
 				new SensorEvent(id,15,8,INACTIVE),	
-				new SensorEvent(id,19,9,INACTIVE),
-				// Critical section 3					
-				new SensorEvent(id,18,9,INACTIVE),	
+/*				new SensorEvent(id,19,9,INACTIVE),				
+				new SensorEvent(id,18,9,INACTIVE),	 */
 				new SensorEvent(id,12,9,INACTIVE),	
 				new SensorEvent(id,13,10,INACTIVE),
-				// Critical section 4
+				// Critical section 3
 				new SensorEvent(id,7,9,INACTIVE),	
 				new SensorEvent(id,6,10,INACTIVE),	
-				new SensorEvent(id,1,9,INACTIVE),
-				// Critical section 5
-				new SensorEvent(id,1,10,INACTIVE),	
+//				new SensorEvent(id,1,9,INACTIVE),
+//				new SensorEvent(id,1,10,INACTIVE),	
 				new SensorEvent(id,6,11,INACTIVE),	
 				new SensorEvent(id,4,13,INACTIVE),
+	};
+	
+	/** A list of coordinates of the switches.
+	 */
+	Dimension[] switches = new Dimension[]{
+			new Dimension(0, 0),
+			new Dimension(0, 0),
+			new Dimension(0, 0)
 	};
 	
 	/** Creates a new instance of a train.
@@ -86,30 +101,9 @@ public class Train extends Thread {
 		} catch (CommandException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	/** Stops the train.
-	 */
-	public void brake() {
-		try {
-			tsi.setSpeed(id, 0);
-		} catch (CommandException e) {
-			e.printStackTrace();
+		while (true) {
+			checkEnvironment();
 		}
-	}
-	
-	/** Reverses the direction of the train.
-	 */
-	public void reverse() {
-		speed = -speed;
-	}
-	
-	/** Simply retrieves this train instance's current speed.
-	 * 
-	 *  @return The current speed of the train.
-	 */
-	public int getSpeed() {
-		return speed;
 	}
 	
 	/** Returns the critical section index.
@@ -123,17 +117,13 @@ public class Train extends Thread {
 				sensorEqual(e, criticals[2]) || sensorEqual(e, criticals[3])) {
 			i = 0;
 		} else if (sensorEqual(e, criticals[4]) ||
-				sensorEqual(e, criticals[5]) || sensorEqual(e, criticals[6])) {
+				sensorEqual(e, criticals[5]) || sensorEqual(e, criticals[6]) ||
+				sensorEqual(e, criticals[7])) {
 			i = 1;
-		} else if (sensorEqual(e, criticals[7]) || 
-				sensorEqual(e, criticals[8]) || sensorEqual(e, criticals[9])) {
+		} else if (sensorEqual(e, criticals[8]) ||
+				sensorEqual(e, criticals[9]) || sensorEqual(e, criticals[10]) ||
+				sensorEqual(e, criticals[11])) {
 			i = 2;
-		} else if (sensorEqual(e, criticals[10]) || 
-				sensorEqual(e, criticals[11]) || sensorEqual(e, criticals[12])) {
-			i = 3;
-		} else if (sensorEqual(e, criticals[13]) || 
-				sensorEqual(e, criticals[14]) || sensorEqual(e, criticals[15])) {
-			i = 4;
 		}
 		return i;
 	}
@@ -169,7 +159,7 @@ public class Train extends Thread {
 	
 	/** Checks whether an instance of a SensorEvent is contained in 'criticals'.
 	 * 
-	 *  @param SensorEvent e, reference to a SensorEvent.
+	 *  @param e reference to a SensorEvent.
 	 *  @return true if 'criticals' contains instance 'e', false otherwise.
 	 */
 	public Boolean isStation(SensorEvent e) {
@@ -203,6 +193,53 @@ public class Train extends Thread {
 		return e1.getXpos() == e2.getXpos() && e1.getYpos() == e2.getYpos();
 	}
 	
+	/**	Manages the switches based on the triggered sensor and the semaphores
+	 *  handling the station entering and exiting.
+	 *  
+	 * 	@param e the sensor that was triggered
+	 */
+	private void doSwitch(SensorEvent e) {
+		// Leaving upper station 1 and entering critical station 2.
+		if (isStationEmpty(0) && sensorEqual(e, criticals[4])) {
+		
+		}
+		// Leaving lower station 1 and entering critical station 2 .
+		else if (isStationEmpty(0) && sensorEqual(e, criticals[5])) {
+			
+		}
+		// Leaving upper station 2 and entering critical station 3.
+		else if (isStationEmpty(1) && sensorEqual(e, criticals[10])) {
+		
+		}
+		// Leaving lower station 2 and entering critical station 3.
+		else if (isStationEmpty(1) && sensorEqual(e, criticals[11])) {
+		
+		}
+		// Entering critical section 2 and heading towards station.
+		else if (sensorEqual(e, criticals[6]) || sensorEqual(e, criticals[7]) || 
+				sensorEqual(e, criticals[8]) || sensorEqual(e, criticals[9])) {
+			
+		}
+		// Entering critical section 3 and heading towards station.
+		else if (sensorEqual(e, criticals[6]) || sensorEqual(e, criticals[7]) || 
+				sensorEqual(e, criticals[8]) || sensorEqual(e, criticals[9])) {
+					
+		}
+		// Entering critical section 1
+		else if (sensorEqual(e, criticals[6]) || sensorEqual(e, criticals[7]) || 
+				sensorEqual(e, criticals[8]) || sensorEqual(e, criticals[9])) {
+			
+		}	
+	}
+	
+	/** Checks whether a station is empty or not
+	 *	@param stationIndex the index of the station
+	 *	@return 'true' if station is empty, 'false' otherwise
+	 */
+	private Boolean isStationEmpty(int stationIndex) {
+		return statSems[stationIndex].availablePermits() == 1;
+	}
+	
 	/** Requests to pass through a critical section by asking the semaphore of
 	 *  that section for a permit.
 	 *  
@@ -210,7 +247,7 @@ public class Train extends Thread {
 	 *  	   section.
 	 */
 	synchronized public void request(int sectionNumber) {
-		if (sems[sectionNumber].availablePermits() == 0) {
+		if (critSems[sectionNumber].availablePermits() == 0) {
 			try {
 				tsi.setSpeed(id, 0);
 			} catch (CommandException e) {
@@ -219,7 +256,7 @@ public class Train extends Thread {
 		}
 		
 		try {
-			sems[sectionNumber].acquire();
+			critSems[sectionNumber].acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -238,17 +275,42 @@ public class Train extends Thread {
 			e.printStackTrace();
 		}
 		
-		sems[sectionNumber].release();
+		critSems[sectionNumber].release();
 	}
 	
 	public void checkEnvironment() {
 		SensorEvent sensor = getSensor();
 		if (sensor != null) {
-			if (isCritical(sensor)) {
+			if (isStation(sensor)) {
+				if (!isAtStation) {
+					System.err.println("Train " + id +" entering station "
+							 + (getStationIndex(sensor) + 1));
+					isAtStation = true;
+					try {
+						tsi.setSpeed(id, 0);
+					} catch (CommandException e1) {
+						e1.printStackTrace();
+					}
+					try {
+						sleep(2000 + 2 * simSpeed * Math.abs(speed));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					speed = -speed;
+					run();
+				} else {
+					if (getSensor().getStatus() == INACTIVE) {
+						System.err.println("Train " + id +" exiting station "
+								+ (getStationIndex(sensor) + 1));
+						isAtStation = false;
+					}
+				}
+			} else {
 				if (!isInCritical) {
 					System.err.println("Train " + id +" entering critical "
 							+ "section " + (getSectionIndex(sensor) + 1));
 					request(getSectionIndex(sensor));
+					doSwitch(sensor);
 					isInCritical = true;
 				} else {
 					if (getSensor().getStatus() == INACTIVE) {
@@ -256,26 +318,6 @@ public class Train extends Thread {
 								+ "section " + (getSectionIndex(sensor) + 1));
 						signal(getSectionIndex(sensor));
 						isInCritical = false;
-					}
-				}
-			} else if (isStation(sensor)) {
-				if (!isAtStation) {
-					System.err.println("Train " + id +" entering station "
-							 + (getStationIndex(sensor) + 1));
-					isAtStation = true;
-					brake();
-					try {
-						sleep(2000 + 2 * simSpeed * Math.abs(speed));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					reverse();
-					run();
-				} else {
-					if (getSensor().getStatus() == INACTIVE) {
-						System.err.println("Train " + id +" exiting station "
-								+ (getStationIndex(sensor) + 1));
-						isAtStation = false;
 					}
 				}
 			}
