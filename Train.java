@@ -282,8 +282,8 @@ public class Train extends Thread {
 				}
 				// Entering critical section 2 and heading towards station 1.
 				else if (sensorEqual(sensor, criticals[6])) {
-					request(1);
 					System.err.println("I got here");
+					request(1);
 					tsi.setSwitch(switches[1].width, switches[1].height, swR);
 					if (statSems[0].availablePermits() == 1) {
 						statSems[0].acquire();
