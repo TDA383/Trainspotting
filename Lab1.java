@@ -1,6 +1,6 @@
 public class Lab1 {
 	
-	private static final int maxSpeed = 50;
+	private static final int maxSpeed = 15;
 	
 	public static void main(String[] args) {
 		new Lab1(args);
@@ -13,7 +13,7 @@ public class Lab1 {
 		switch (args.length) {
 		default:
 		case 3: 
-			simSpeed    = Integer.parseInt(args[2]); 
+			simSpeed = Integer.parseInt(args[2]); 
 		case 2:
 			t2speed = Integer.parseInt(args[1]);
 		case 1:

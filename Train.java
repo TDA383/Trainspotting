@@ -52,25 +52,27 @@ public class Train extends Thread {
 				// Critical section 1
 				new SensorEvent(id,6,6,INACTIVE),
 				new SensorEvent(id,8,5,INACTIVE),
-				new SensorEvent(id,10,8,INACTIVE),
 				new SensorEvent(id,11,7,INACTIVE),
+				new SensorEvent(id,10,8,INACTIVE),
 				// Critical section 2					
 				new SensorEvent(id,14,7,INACTIVE),	
 				new SensorEvent(id,15,8,INACTIVE),			 
-				new SensorEvent(id,12,9,INACTIVE),	
+				new SensorEvent(id,12,9,INACTIVE),			 
+				new SensorEvent(id,13,10,INACTIVE),	
 				// Critical section 3
 				new SensorEvent(id,7,9,INACTIVE),	
-				new SensorEvent(id,6,10,INACTIVE),		
-				new SensorEvent(id,4,13,INACTIVE),
+				new SensorEvent(id,6,10,INACTIVE),	
+				new SensorEvent(id,6,11,INACTIVE),		
+				new SensorEvent(id,4,13,INACTIVE)
 	};
 	
 	/** A list of coordinates of the switches.
 	 */
-	Dimension[] switches = new Dimension[]{
-			new Dimension(0, 0),
-			new Dimension(0, 0),
-			new Dimension(0, 0),
-			new Dimension(0, 0),
+	static final Dimension[] switches = new Dimension[]{
+			new Dimension(17, 7),
+			new Dimension(15, 9),
+			new Dimension(4, 9),
+			new Dimension(3, 11),
 	};
 	
 	/** Creates a new instance of a train.
@@ -82,22 +84,29 @@ public class Train extends Thread {
 		tsi = TSimInterface.getInstance();
 		this.id = id;
 		this.speed = speed;
-		run();
+		tsi.setDebug(true);
 	}
 	
 	/** Starts the train with its specified speed.
 	 */
 	public void run() {
+		isInCritical = true;
 		super.run();
 		try {
 			tsi.setSpeed(id, speed);
 		} catch (CommandException e) {
 			e.printStackTrace();
 		}
+		try {
+			statSems[0].acquire();
+			statSems[2].acquire();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+			System.exit(1);}
 		while (true) {
 			try {
 				checkEnvironment();
-			} catch (CommandException e) {
+			} catch (CommandException | InterruptedException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
@@ -137,22 +146,6 @@ public class Train extends Thread {
 			if (sensorEqual(e,stations[i])) return i;
 		}
 		return -1;	// Returns -1 if 'e' isn't in 'stations'.
-	}
-	
-	/** Retrieves the current active sensor. If none is active, then null is
-	 *  returned.
-	 * 
-	 *  @return A SensorEvent.
-	 */
-	private SensorEvent getSensor() {
-		SensorEvent s = null;
-		try {
-			s = tsi.getSensor(id);
-		} catch (CommandException | InterruptedException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return s;
 	}
 	
 	/** Checks whether an instance of a SensorEvent is contained in 'stations'.
@@ -216,11 +209,11 @@ public class Train extends Thread {
 		critSems[sectionNumber].release();
 	}
 	
-	private void checkEnvironment() throws CommandException {
+	private void checkEnvironment() throws CommandException, InterruptedException {
 		int swL = TSimInterface.SWITCH_LEFT;
 		int swR = TSimInterface.SWITCH_RIGHT;
 		
-		SensorEvent sensor = getSensor();
+		SensorEvent sensor = tsi.getSensor(id);
 		if (isStation(sensor)) {
 			// Is not at a station.
 			if (!isAtStation) {
@@ -242,7 +235,7 @@ public class Train extends Thread {
 			}
 			// Is at a station.
 			else {
-				if (getSensor().getStatus() == INACTIVE) {
+				if (tsi.getSensor(id).getStatus() == INACTIVE) {
 					System.err.println("Train " + id +" exiting station "
 							+ (getStationIndex(sensor) + 1));
 					isAtStation = false;
@@ -254,17 +247,15 @@ public class Train extends Thread {
 				// Leaving upper station 1 and entering critical section 2.
 				if (sensorEqual(sensor, criticals[4])) {
 					request(1);
-					tsi.setSwitch(switches[0].width, switches[0].height, swL);
-					tsi.setSwitch(switches[1].width, switches[1].height, swR);
-					isInCritical = true;
+					tsi.setSwitch(switches[0].width, switches[0].height, swR);
+					tsi.setSwitch(switches[1].width, switches[1].height, swL);
 					statSems[0].release();
 				}
 				// Leaving lower station 1 and entering critical section 2 .
 				else if (sensorEqual(sensor, criticals[5])) {
 					request(1);
-					tsi.setSwitch(switches[0].width, switches[0].height, swR);
-					tsi.setSwitch(switches[1].width, switches[1].height, swR);
-					isInCritical = true;
+					tsi.setSwitch(switches[0].width, switches[0].height, swL);
+					tsi.setSwitch(switches[1].width, switches[1].height, swL);
 					statSems[1].release();
 				}
 				// Leaving upper station 2 and entering critical section 3.
@@ -272,7 +263,6 @@ public class Train extends Thread {
 					request(2);
 					tsi.setSwitch(switches[3].width, switches[3].height, swL);
 					tsi.setSwitch(switches[2].width, switches[1].height, swL);
-					isInCritical = true;
 					statSems[2].release();
 				}
 				// Leaving lower station 2 and entering critical section 3.
@@ -280,39 +270,42 @@ public class Train extends Thread {
 					request(2);
 					tsi.setSwitch(switches[3].width, switches[3].height, swR);
 					tsi.setSwitch(switches[2].width, switches[1].height, swL);
-					isInCritical = true;
 					statSems[3].release();
 				}
 				// Entering critical section 1
-				else if (sensorEqual(sensor, criticals[6]) ||
-						sensorEqual(sensor, criticals[7]) ||
-						sensorEqual(sensor, criticals[8]) ||
-						sensorEqual(sensor, criticals[9])) {
+				else if (sensorEqual(sensor, criticals[0]) ||
+						sensorEqual(sensor, criticals[1]) ||
+						sensorEqual(sensor, criticals[2]) ||
+						sensorEqual(sensor, criticals[3])) {
 					request(0);
-					isInCritical = true;
 				}
 				// Entering critical section 2 and heading towards station 1.
 				else if (sensorEqual(sensor, criticals[6])) {
 					request(1);
-					tsi.setSwitch(switches[1].width, switches[1].height, swL);
-					if (statSems[0].availablePermits() == 1) {
-						tsi.setSwitch(switches[0].width, switches[0].height, swL);
-					} else {
-						tsi.setSwitch(switches[0].width, switches[0].height, swR);
-					}
-					isInCritical = true;
-				}
-				// Entering critical section 2 and heading towards station 2.
-				else if (sensorEqual(sensor, criticals[7])) {
-					request(2);
 					tsi.setSwitch(switches[1].width, switches[1].height, swR);
-					if (statSems[2].availablePermits() == 1) {
-						tsi.setSwitch(switches[0].width, switches[0].height, swL);
-					} else {
+					if (statSems[0].availablePermits() == 1) {
+						statSems[0].acquire();
 						tsi.setSwitch(switches[0].width, switches[0].height, swR);
+					} else {
+						statSems[1].acquire();
+						tsi.setSwitch(switches[0].width, switches[0].height, swL);
 					}
-					isInCritical = true;	
-				}	
+				}
+				// Entering critical section 3 and heading towards station 2.
+				else if (sensorEqual(sensor, criticals[9])) {
+					request(2);
+					tsi.setSwitch(switches[2].width, switches[2].height, swR);
+					if (statSems[2].availablePermits() == 1) {
+						statSems[2].acquire();
+						tsi.setSwitch(switches[3].width, switches[3].height, swL);
+					} else {
+						statSems[3].acquire();
+						tsi.setSwitch(switches[3].width, switches[3].height, swR);
+					}	
+				}
+				isInCritical = true;
+				System.err.println("Train " + id +" entering critical "
+						+ "section " + (getSectionIndex(sensor) + 1));
 			// Is in a critical section.
 			} else {
 				if (sensor.getStatus() == INACTIVE) {
