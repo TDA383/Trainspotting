@@ -249,6 +249,7 @@ public class Train extends Thread {
 					tsi.setSwitch(switches[0].width, switches[0].height, swR);
 					tsi.setSwitch(switches[1].width, switches[1].height, swL);
 					statSems[0].release();
+					System.err.println("Station semaphore 1 released");
 				}
 				// Leaving lower station 1 and entering critical section 2 .
 				else if (sensorEqual(sensor, criticals[5])) {
@@ -256,6 +257,7 @@ public class Train extends Thread {
 					tsi.setSwitch(switches[0].width, switches[0].height, swL);
 					tsi.setSwitch(switches[1].width, switches[1].height, swL);
 					statSems[1].release();
+					System.err.println("Station semaphore 2 released");
 				}
 				// Leaving upper station 2 and entering critical section 3.
 				else if (sensorEqual(sensor, criticals[10])) {
@@ -263,6 +265,7 @@ public class Train extends Thread {
 					tsi.setSwitch(switches[3].width, switches[3].height, swL);
 					tsi.setSwitch(switches[2].width, switches[1].height, swL);
 					statSems[2].release();
+					System.err.println("Station semaphore 3 released");
 				}
 				// Leaving lower station 2 and entering critical section 3.
 				else if (sensorEqual(sensor, criticals[11])) {
@@ -270,6 +273,7 @@ public class Train extends Thread {
 					tsi.setSwitch(switches[3].width, switches[3].height, swR);
 					tsi.setSwitch(switches[2].width, switches[1].height, swL);
 					statSems[3].release();
+					System.err.println("Station semaphore 4 released");
 				}
 				// Entering critical section 1
 				else if (sensorEqual(sensor, criticals[0]) ||
