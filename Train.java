@@ -84,7 +84,6 @@ public class Train extends Thread {
 		tsi = TSimInterface.getInstance();
 		this.id = id;
 		this.speed = speed;
-		tsi.setDebug(true);
 	}
 	
 	/** Starts the train with its specified speed.
@@ -95,12 +94,6 @@ public class Train extends Thread {
 		} catch (CommandException e) {
 			e.printStackTrace();
 		}
-		try {
-			statSems[0].acquire();
-			statSems[2].acquire();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-			System.exit(1);}
 		while (true) {
 			try {
 				checkEnvironment();
@@ -205,7 +198,6 @@ public class Train extends Thread {
 		}
 		
 		critSems[sectionNumber].release();
-		System.err.println("Released");
 	}
 	
 	private void checkEnvironment() throws CommandException, InterruptedException {
@@ -284,7 +276,6 @@ public class Train extends Thread {
 				}
 				// Entering critical section 2 and heading towards station 1.
 				else if (sensorEqual(sensor, criticals[6])) {
-					System.err.println("I got here");
 					request(1);
 					tsi.setSwitch(switches[1].width, switches[1].height, swR);
 					if (statSems[0].availablePermits() == 1) {
@@ -292,7 +283,7 @@ public class Train extends Thread {
 						tsi.setSwitch(switches[0].width, switches[0].height, swR);
 					} else {
 						statSems[1].acquire();
-						tsi.setSwitch(switches[0].width, switches[0].height, swL);
+						tsi.setSwitch(switches[1].width, switches[1].height, swL);
 					}
 				}
 				// Entering critical section 3 and heading towards station 2.

@@ -16,8 +16,10 @@ public class Lab1 {
 			simSpeed = Integer.parseInt(args[2]); 
 		case 2:
 			t2speed = Integer.parseInt(args[1]);
+			if (t2speed > maxSpeed) t2speed = maxSpeed;
 		case 1:
-			t1speed = Integer.parseInt(args[0]);	
+			t1speed = Integer.parseInt(args[0]);
+			if (t1speed > maxSpeed) t1speed = maxSpeed;
 		case 0:
 			break;
 		}
