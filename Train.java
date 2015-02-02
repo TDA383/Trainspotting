@@ -207,6 +207,7 @@ public class Train extends Thread {
 		}
 		
 		critSems[sectionNumber].release();
+		System.err.println("Released");
 	}
 	
 	private void checkEnvironment() throws CommandException, InterruptedException {
@@ -282,6 +283,7 @@ public class Train extends Thread {
 				// Entering critical section 2 and heading towards station 1.
 				else if (sensorEqual(sensor, criticals[6])) {
 					request(1);
+					System.err.println("I got here");
 					tsi.setSwitch(switches[1].width, switches[1].height, swR);
 					if (statSems[0].availablePermits() == 1) {
 						statSems[0].acquire();
