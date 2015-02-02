@@ -234,7 +234,7 @@ public class Train extends Thread {
 			}
 			// Is at a station.
 			else {
-				if (tsi.getSensor(id).getStatus() == INACTIVE) {
+				if (sensor.getStatus() == INACTIVE) {
 					System.err.println("Train " + id +" exiting station "
 							+ (getStationIndex(sensor) + 1));
 					isAtStation = false;
