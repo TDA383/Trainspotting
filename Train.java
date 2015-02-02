@@ -230,7 +230,7 @@ public class Train extends Thread {
 					e.printStackTrace();
 				}
 				speed = -speed;
-				run();
+				tsi.setSpeed(id, speed);
 			}
 			// Is at a station.
 			else {
