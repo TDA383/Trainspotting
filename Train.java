@@ -90,8 +90,6 @@ public class Train extends Thread {
 	/** Starts the train with its specified speed.
 	 */
 	public void run() {
-		isInCritical = true;
-		super.run();
 		try {
 			tsi.setSpeed(id, speed);
 		} catch (CommandException e) {
