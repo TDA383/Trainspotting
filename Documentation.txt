@@ -1,0 +1,24 @@
+-- Documentation --
+This document justifies that our solution to the train program is valid by
+discussing our code, the placement of the sensors and by giving some simulation
+examples.
+
+We have concluded that a critical section is where two trains are forced to
+share one track. Therefore there are three critical sections: the cross-section
+by the station at the top (station 1), and the two tracks between switches 1
+and	2 respectively 3 and 4. Switches 1 and 2 are the switches closest to
+station 1, and switches 3 and 4 are those closest to station 2.
+
+Each critical section requires 4 sensors, since there are four ways to enter
+every critical section. We have decided that the two track section in the middle
+is not a critical section, since the trains can always pass simultaneously.
+The exact placement of each sensor was decided through testing, to make sure that
+there is enough braking distance for our maximum speed.
+
+We have set the maximum speed to 20 since that gives us a good spread of sensors, 
+while maintaining a good train flow.
+
+We tested our solution using different train speeds and different simulation speeds until
+we found the best speed and the best way to place the sensors. We also used debug messages 
+in the train program to help us find bugs.
+  

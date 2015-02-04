@@ -1,6 +1,6 @@
 public class Lab1 {
 	
-	private static final int maxSpeed = 15;
+	private static final int maxSpeed = 20;
 	
 	public static void main(String[] args) {
 		new Lab1(args);
