@@ -43,7 +43,7 @@ public class Train extends Thread {
 	/** A list of station sensors.
 	 */
 	public final SensorEvent[] stations = 
-			new SensorEvent[]{
+		new SensorEvent[] {
 			new SensorEvent(id,14,3,INACTIVE),
 			new SensorEvent(id,14,5,INACTIVE),
 			new SensorEvent(id,14,11,INACTIVE),
@@ -53,7 +53,7 @@ public class Train extends Thread {
 	/** A list of critical section sensors.
 	 */
 	public final SensorEvent[] criticals =
-			new SensorEvent[]{
+			new SensorEvent[] {
 				// Critical section, cross-section
 				new SensorEvent(id,6,5,INACTIVE),
 				new SensorEvent(id,9,5,INACTIVE),
