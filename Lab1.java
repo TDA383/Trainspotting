@@ -24,8 +24,8 @@ public class Lab1 {
 			break;
 		}
 		
-		Train t1 = new Train(1, t1speed, simSpeed);
-		Train t2 = new Train(2, t2speed, simSpeed);
+		Train2 t1 = new Train2(1, t1speed, simSpeed);
+		Train2 t2 = new Train2(2, t2speed, simSpeed);
 		t1.start();
 		t2.start();
 	}
