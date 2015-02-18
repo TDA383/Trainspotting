@@ -6,7 +6,7 @@ public class Lab2 {
 		new Lab1(args);
 	}
 
-	public Lab1(String[] args) {
+	public Lab2(String[] args) {
 		int t1speed = maxSpeed, t2speed = maxSpeed;
 		int simSpeed = 100;
 
