@@ -1,4 +1,4 @@
-public class Lab1 {
+public class Lab2 {
 
 	private static final int maxSpeed = 20;
 

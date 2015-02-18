@@ -9,19 +9,19 @@ import static TSim.SensorEvent.*;
  *  with the simulator through the TSimInterface. Each train must be assigned
  *  with an id that matches with an id from one of the trains in the railroad
  *  map.
- * 
+ *
  *  @author Dennis Bennhage & Hampus Lidin
  */
 public class Train extends Thread {
 
 	public int simSpeed;
-	
+
 	private int id;
 	private int speed;
 	private TSimInterface tsi;
 	private Boolean enteringStation = false;
 	private Boolean isInCritical = false;
-	
+
 	/** The critical section semaphores.
 	 */
 	private static final Semaphore[] critSems = new Semaphore[]{
@@ -30,24 +30,24 @@ public class Train extends Thread {
 		new Semaphore(1),	// Station 2 merge section semaphore
 		new Semaphore(1)	// Two-track section semaphore
 	};
-	
+
 	/** The station semaphores.
 	 */
 	private static final Semaphore[] statSems = new Semaphore[]{
 		new Semaphore(0),	// Train 1 is initially at upper station 1
 		new Semaphore(0) 	// Train 2 is initially at upper station 2
 	};
-	
+
 	/** A list of station sensors.
 	 */
-	public final SensorEvent[] stations = 
+	public final SensorEvent[] stations =
 		new SensorEvent[] {
 			new SensorEvent(id,14,3,INACTIVE),
 			new SensorEvent(id,14,5,INACTIVE),
 			new SensorEvent(id,14,11,INACTIVE),
 			new SensorEvent(id,14,13,INACTIVE),
 	};
-	
+
 	/** A list of critical section sensors.
 	 */
 	public final SensorEvent[] criticals =
@@ -57,18 +57,18 @@ public class Train extends Thread {
 				new SensorEvent(id,9,5,INACTIVE),
 				new SensorEvent(id,12,7,INACTIVE),
 				new SensorEvent(id,11,8,INACTIVE),
-				// Critical section, station 1 merge					
-				new SensorEvent(id,14,7,INACTIVE),	
-				new SensorEvent(id,15,8,INACTIVE),			 
-				new SensorEvent(id,12,9,INACTIVE),			 
-				new SensorEvent(id,13,10,INACTIVE),	
+				// Critical section, station 1 merge
+				new SensorEvent(id,14,7,INACTIVE),
+				new SensorEvent(id,15,8,INACTIVE),
+				new SensorEvent(id,12,9,INACTIVE),
+				new SensorEvent(id,13,10,INACTIVE),
 				// Critical section, station 2 merge
-				new SensorEvent(id,7,9,INACTIVE),	
-				new SensorEvent(id,6,10,INACTIVE),	
-				new SensorEvent(id,6,11,INACTIVE),		
+				new SensorEvent(id,7,9,INACTIVE),
+				new SensorEvent(id,6,10,INACTIVE),
+				new SensorEvent(id,6,11,INACTIVE),
 				new SensorEvent(id,4,13,INACTIVE)
 	};
-	
+
 	/** A list of coordinates of the switches.
 	 */
 	private final Dimension[] switches = new Dimension[]{
@@ -77,10 +77,10 @@ public class Train extends Thread {
 			new Dimension(4, 9),
 			new Dimension(3, 11)
 	};
-	
+
 	/** Creates a new instance of a train.
-	 * 
-	 *  @param id the train id. 
+	 *
+	 *  @param id the train id.
 	 *  @param speed the speed in which the train will be traveling in.
 	 */
 	public Train(int id, int speed, int simSpeed) {
@@ -89,7 +89,7 @@ public class Train extends Thread {
 		this.speed = speed;
 		this.simSpeed = simSpeed;
 	}
-	
+
 	/** Starts the train with its specified speed.
 	 */
 	public void run() {
@@ -108,15 +108,15 @@ public class Train extends Thread {
 			}
 		}
 	}
-	
+
 	/** Returns the critical section index.
-	 * 
+	 *
 	 *  @param e the sensor associated with the station.
 	 *  @return The critical section index if 'e' is in 'criticals', otherwise -1.
 	 */
 	public int getSectionIndex(SensorEvent e) {
 		int i = -1;
-		if (sensorEqual(e, criticals[0]) || sensorEqual(e, criticals[1]) || 
+		if (sensorEqual(e, criticals[0]) || sensorEqual(e, criticals[1]) ||
 				sensorEqual(e, criticals[2]) || sensorEqual(e, criticals[3])) {
 			i = 0;
 		} else if (sensorEqual(e, criticals[4]) ||
@@ -130,9 +130,9 @@ public class Train extends Thread {
 		}
 		return i;
 	}
-	
+
 	/** Returns the station index. This is only for debug purposes.
-	 * 
+	 *
 	 *  @param e the sensor associated with the station.
 	 *  @return The station index if 'e' is in 'stations', otherwise -1.
 	 */
@@ -143,9 +143,9 @@ public class Train extends Thread {
 		}
 		return -1;	// Returns -1 if 'e' isn't in 'stations'.
 	}
-	
+
 	/** Checks whether an instance of a SensorEvent is contained in 'stations'.
-	 * 
+	 *
 	 *  @param e reference to a SensorEvent.
 	 *  @return 'true' if 'sensors' contains instance 'e', 'false' otherwise.
 	 */
@@ -155,9 +155,9 @@ public class Train extends Thread {
 		}
 		return false;
 	}
-	
+
 	/** Compares two sensors' positions.
-	 * 
+	 *
 	 *  @param e1 the first SensorEvent
 	 *  @param e2 the second SensorEvent
 	 *  @return 'true' if the sensors are at the same position, 'false'
@@ -166,35 +166,35 @@ public class Train extends Thread {
 	private Boolean sensorEqual(SensorEvent e1, SensorEvent e2) {
 		return e1.getXpos() == e2.getXpos() && e1.getYpos() == e2.getYpos();
 	}
-	
+
 	/** Requests to pass through a critical section by asking the semaphore of
 	 *  that section for a permit.
-	 *  
+	 *
 	 *  @param sectionNumber the number associated with the critical
 	 *  	   section.
-	 * @throws CommandException 
-	 * @throws InterruptedException 
+	 * @throws CommandException
+	 * @throws InterruptedException
 	 */
 	private void request(int sectionNumber)
 			throws CommandException, InterruptedException {
-		tsi.setSpeed(id, 0);		
+		tsi.setSpeed(id, 0);
 		critSems[sectionNumber].acquire();
 		tsi.setSpeed(id, speed);
 	}
-	
+
 	/** Releases the permit for the train from the semaphore of a particular
 	 *  critical section
-	 *  
+	 *
 	 *  @param sectionNumber the number associated with the critical
 	 *  	   section.
 	 */
 	private void signal(int sectionNumber) {
 		critSems[sectionNumber].release();
 	}
-	
+
 	/** Sets the two track section switches based on the vacancy of the track
 	 *  and in which direction the train is coming from.
-	 * 
+	 *
 	 * 	@param direction 0 if the train comes from the left, 1 otherwise. Other
 	 * 		values will throw an IllegalArgumentException.
 	 *  @throws CommandException
@@ -208,7 +208,7 @@ public class Train extends Thread {
 		int swR = TSimInterface.SWITCH_RIGHT;
 		if (!(direction == 0 || direction == 1))
 			throw new IllegalArgumentException();
-		
+
 		if (critSems[3].tryAcquire()) {
 //			System.err.println("Permit acquired! " + critSems[3].availablePermits() + " left.");
 			if (direction == 1)
@@ -220,10 +220,10 @@ public class Train extends Thread {
 			else tsi.setSwitch(switches[2].width, switches[2].height, swR);
 		}
 	}
-	
-	/** Checks the sensors in the map to determine whether a train should enter 
+
+	/** Checks the sensors in the map to determine whether a train should enter
 	 *  a critical section or not.
-	 * 
+	 *
 	 *  @throws CommandException
 	 *  @throws InterruptedException
 	 */
@@ -231,7 +231,7 @@ public class Train extends Thread {
 			throws CommandException, InterruptedException {
 		int swL = TSimInterface.SWITCH_LEFT;
 		int swR = TSimInterface.SWITCH_RIGHT;
-		
+
 		SensorEvent sensor = tsi.getSensor(id);
 		// A station sensor triggered.
 		if (isStation(sensor)) {
@@ -284,7 +284,7 @@ public class Train extends Thread {
 					request(2);	// Requesting pass-through for station 2 merge
 					tsi.setSwitch(switches[3].width, switches[3].height, swR);
 					setTwoTrackSwitches(0);
-//					System.err.println("Lower station 2 is now vacant."); 
+//					System.err.println("Lower station 2 is now vacant.");
 				}
 				// Entering station 1 merge section and heading towards station
 				else if (sensorEqual(sensor, criticals[6]) ||
